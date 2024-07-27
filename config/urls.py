@@ -19,12 +19,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.urls import path, include
-from user.views import register, login
+from user.views import register, login, user
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("register/", register),
-    path("login/", login)
+    path("login/", login),
+    path("user/", user)
 ]
 
 if settings.DEBUG:

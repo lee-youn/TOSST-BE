@@ -11,13 +11,14 @@ from rest_framework.serializers import Serializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserDataSerializer
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from django.shortcuts import render, get_object_or_404
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def register(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -48,6 +49,7 @@ def register(request):
 
     
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def login(request):
     user = authenticate(
             email=request.data.get("email"), password=request.data.get("password")
@@ -76,3 +78,20 @@ def login(request):
         return res
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def user(request):
+    match request.method:
+        case "PATCH":
+            serializer = UserDataSerializer(request.user,data=request.data, partial=True)
+            if 'profile' in request.FILES:
+                profile = request.FILES['profile']
+            # 파일 처리
+            else:
+                profile = None
+            
+            if serializer.is_valid():
+                serializer.profile = profile 
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
