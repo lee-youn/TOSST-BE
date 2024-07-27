@@ -19,13 +19,25 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.urls import path, include
-from user.views import register, login, user
+from user.views import register, login, user, user_wake
+from group.views import group, user_group, group_data, group_user_list, group_list, group_user_status
+from todo.views import todo_create, todo_updateDelete
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("register/", register),
     path("login/", login),
-    path("user/", user)
+    path("user/", user),
+    path("group/", group),
+    path("user/group/", user_group),
+    path('group/<int:id>/', group_data),
+    path('group/user_list/', group_user_list),
+    path('group/list/', group_list),
+    path('group/user_status/', group_user_status),
+    path("todos/", todo_create),
+    path('todos/<int:id>/', todo_updateDelete),
+    path('user/wake/', user_wake)
+    
 ]
 
 if settings.DEBUG:

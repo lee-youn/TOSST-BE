@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now = True)
     updated_at = models.DateTimeField(auto_now=True)
     profile = models.ImageField(upload_to='profiles/', blank=True)
     nickname = models.CharField(max_length=200, blank=True)
@@ -53,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Wake(models.Model):
     status = models.IntegerField(default=0)
-    wake_date = models.DateTimeField()
+    wake_date = models.DateTimeField(auto_now = True)
     User = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:

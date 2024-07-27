@@ -11,10 +11,15 @@ from rest_framework.serializers import Serializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer, UserDataSerializer
+from .serializers import UserSerializer, UserDataSerializer, WakeSerializer
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from django.shortcuts import render, get_object_or_404
+from .models import User,Wake
+from django.utils import timezone
+from django.utils.timezone import localtime
+from datetime import timedelta
+
 
 
 @api_view(["POST"])
@@ -23,6 +28,13 @@ def register(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
+
+        # Wake 객체 생성
+        wake = Wake.objects.create(User=user)
+        utc_time = wake.wake_date
+        local_time = localtime(utc_time)
+        wake.wake_date = local_time
+        wake.save()
             
         # jwt 토큰 접근
         token = TokenObtainPairSerializer.get_token(user)
@@ -72,6 +84,14 @@ def login(request):
             },
                 status=status.HTTP_200_OK,
             )
+        try:
+            wake = Wake.objects.get(User=user)
+            wake.status = 1
+            wake.save()
+            
+        except Wake.DoesNotExist:
+            # Wake 객체가 없는 경우 새로 생성
+            Wake.objects.create(User=user)
             # jwt 토큰 => 쿠키에 저장
         res.set_cookie("access", access_token, httponly=True)
         res.set_cookie("refresh", refresh_token, httponly=True)
@@ -79,19 +99,43 @@ def login(request):
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(["PATCH"])
+@api_view(["PATCH", "GET"])
 @permission_classes([IsAuthenticated])
 def user(request):
-    match request.method:
-        case "PATCH":
-            serializer = UserDataSerializer(request.user,data=request.data, partial=True)
+    if request.method == "PATCH":
+        serializer = UserDataSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
             if 'profile' in request.FILES:
-                profile = request.FILES['profile']
-            # 파일 처리
-            else:
-                profile = None
-            
-            if serializer.is_valid():
-                serializer.profile = profile 
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                serializer.validated_data['profile'] = request.FILES['profile']
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == "GET":
+        user = get_object_or_404(User, email=request.user.email)
+        serializer = UserDataSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_wake(request):
+    if request.method == "GET":
+        user = request.user  # request.user는 이미 User 인스턴스입니다.
+        wakes = Wake.objects.get(User=user)
+
+        future_wake_date = wakes.wake_date + timedelta(minutes=30)
+        timenow = timezone.now()
+        if future_wake_date >= timenow:
+            wakes.status = 1
+        else:
+            wakes.status = 3
+        
+        wakes.save()
+
+        # 시리얼라이저를 사용하여 응답
+        serializer = WakeSerializer(wakes)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
