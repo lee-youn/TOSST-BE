@@ -6,7 +6,7 @@ from .models import News, NewsKeyword
 from .serializers import NewsSerializer, QuizSerializer, WakeSerializer
 from quiz.models import Quiz
 from user.models import User, Wake
-
+import random
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -14,7 +14,8 @@ def news(request):
     if request.method == "GET":
         try:
             news = News.objects.all()
-            serializer = NewsSerializer(news, many=True)
+            random_news = random.sample(list(news), min(len(news), 3))
+            serializer = NewsSerializer(random_news, many=True)
             return Response({"status": "success", "data": serializer.data})
         except Exception as e:
             return Response({"status": "error", "message": "기사를 가져오지 못했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

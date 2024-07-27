@@ -20,11 +20,11 @@ def todo_create(request):
         
         user = request.user
         
-        todo = serializer.save(user=user, title = title, todo_date=datetime.now())
+        todo = serializer.save(user_id=user, title = title, todo_date=datetime.now())
         todo_serializer = TodoSerializer(todo)
         return Response(todo_serializer.data, status=status.HTTP_201_CREATED)
     if request.method == 'GET':
-        todos = Todo.objects.filter(user=request.user)
+        todos = Todo.objects.filter(user_id=request.user)
         serializer = TodoSerializer(todos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -34,7 +34,8 @@ def todo_create(request):
 def todo_updateDelete(request, id):
     if request.method == 'PATCH':   # 수정
         try:
-            todo = Todo.objects.get(id=id, user=request.user)
+            user = request.user
+            todo = Todo.objects.get(id=id, user_id=request.user.id)
         except Todo.DoesNotExist:
             return Response({"status": "error", "message": "투두 항목을 찾을 수 없습니다"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -45,7 +46,7 @@ def todo_updateDelete(request, id):
         return Response({"status": "error", "message": "유효하지 않은 데이터입니다", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':   # 삭제
         try:
-            todo = Todo.objects.get(id=id, user=request.user)
+            todo = Todo.objects.get(id=id, user_id=request.user)
         except Todo.DoesNotExist:
             return Response({"status": "error", "message": "투두 항목을 찾을 수 없습니다"}, status=status.HTTP_404_NOT_FOUND)
         todo.delete()
