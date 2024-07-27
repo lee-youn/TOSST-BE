@@ -24,8 +24,6 @@ class TodoCreateSerializer(serializers.ModelSerializer):
 
 # 투두 항목 수정 시
 class TodoUpdateSerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField()
-
     class Meta:
         model = Todo
-        fields = ['user_id','title','status']
+        fields = ['user_id','title','status','todo_date']

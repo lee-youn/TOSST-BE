@@ -133,6 +133,30 @@ def user_wake(request):
         serializer = WakeSerializer(wakes)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def wake_status_monthly(request):
+    month = request.query_params.get('month')
+
+    print(month)
+    # 잘못된 입력 검사
+    try:
+        month = int(month)
+        if month < 1 or month > 12:
+            raise ValueError
+    except ValueError:
+        return Response({"status": "error", "message": "1 ~ 12월 중 선택해주세요"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 인증된 사용자 정보 가져오기
+    user = request.user
+
+    # 'Wake' 모델에서 'month'와 'user'로 필터링
+    # 'User' 필드 또는 'User_id' 필드를 사용해야 함
+    wakes = Wake.objects.filter(User=user, wake_date__month=month).order_by('wake_date')
+
+    # 데이터 직렬화
+    serializer = WakeSerializer(wakes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 

@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.urls import path, include
-from user.views import register, login, user, user_wake
+from user.views import register, login, user, user_wake, wake_status_monthly
 from group.views import group, user_group, group_data, group_user_list, group_list, group_user_status
 from todo.views import todo_create, todo_updateDelete
 from news.views import news, news_quiz, quiz_status
@@ -40,7 +40,8 @@ urlpatterns = [
     path('user/wake/', user_wake),
     path('news/', news),
     path('news/<int:id>/', news_quiz),
-    path('news/quiz/', quiz_status)
+    path('news/quiz/', quiz_status),
+    path('user/month/', wake_status_monthly)
     
 ]
 
