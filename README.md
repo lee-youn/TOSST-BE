@@ -40,7 +40,7 @@ python3 manage.py runserver
             <a href="https://github.com/goldenGlow21">
               <img src="https://github.com/goldenGlow21.png" width="100">
               <br />
-              <b>이종훔</b>
+              <b>이종훈</b>
             </a>
         </td>
     </tr>

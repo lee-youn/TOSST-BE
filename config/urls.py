@@ -39,7 +39,7 @@ urlpatterns = [
     path('todos/<int:id>/', todo_updateDelete),
     path('user/wake/', user_wake),
     path('news/', news),
-    path('news/<int:id>/', news_quiz),
+    path('news/quizzes/', news_quiz),
     path('news/quiz/', quiz_status),
     path('user/month/', wake_status_monthly)
     
