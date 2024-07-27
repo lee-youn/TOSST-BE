@@ -31,9 +31,6 @@ def register(request):
 
         # Wake 객체 생성
         wake = Wake.objects.create(User=user)
-        utc_time = wake.wake_date
-        local_time = localtime(utc_time)
-        wake.wake_date = local_time
         wake.save()
             
         # jwt 토큰 접근

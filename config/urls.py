@@ -22,6 +22,7 @@ from django.urls import path, include
 from user.views import register, login, user, user_wake
 from group.views import group, user_group, group_data, group_user_list, group_list, group_user_status
 from todo.views import todo_create, todo_updateDelete
+from news.views import news, news_quiz, quiz_status
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -36,7 +37,10 @@ urlpatterns = [
     path('group/user_status/', group_user_status),
     path("todos/", todo_create),
     path('todos/<int:id>/', todo_updateDelete),
-    path('user/wake/', user_wake)
+    path('user/wake/', user_wake),
+    path('news/', news),
+    path('news/<int:id>/', news_quiz),
+    path('news/quiz/', quiz_status)
     
 ]
 
